@@ -13,12 +13,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    helpwindow.cpp
+        mainwindow.cpp
 
-HEADERS  += mainwindow.h \
-    helpwindow.h
+HEADERS  += mainwindow.h
 
-FORMS    += mainwindow.ui \
-    helpwindow.ui
+FORMS    += mainwindow.ui
 QT	 += serialport

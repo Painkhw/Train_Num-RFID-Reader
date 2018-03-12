@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QFileDialog>
 #include <QDesktopWidget>
-#include "helpwindow.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -46,17 +46,20 @@ private slots:
 
     void on_checkBox_Rec_clicked();
 
-    QString HexToStr(QString hex);
+    QString HexToStr(QByteArray receivedata);
 
-    QString StrToHex(QString str);    
+    QByteArray StrToHex(QString inputstr);
 
-    void on_pB_About_clicked();
+    //QString StrToHex(QString str);
+
+   // void on_pB_About_clicked();
 
     void on_pB_Stop_clicked();
 
+
 private:
     Ui::MainWindow *ui;
-    HelpWindow helpform;
+
 };
 
 #endif // MAINWINDOW_H

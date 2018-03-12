@@ -1,5 +1,9 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+#include <QTableWidget>
+#include <QTableWidgetItem>
+
 
 QSerialPort my_serial;
 QTimer my_serialtimer;
@@ -40,6 +44,7 @@ void MainWindow::WindowInit()
                                           this->size(),qApp->desktop()->availableGeometry()));
     /* set the tE_SendData Focus */
     ui->tE_SendData->setFocus();
+
 }
 
 void MainWindow::on_pB_Open_clicked()
@@ -101,7 +106,7 @@ void MainWindow::on_pB_Stop_clicked()
 
 void MainWindow::on_pB_Clear_clicked()
 {
-    ui->tE_RecData->clear();
+   //ui->/*tE_RecData*/->clear();
 }
 
 void MainWindow::on_pB_Send_clicked()
@@ -112,13 +117,14 @@ void MainWindow::on_pB_Send_clicked()
     {
         if(sendhex_flag)
         {
-            /* send data by utf-8 */
-            TempTxNum = my_serial.write(HexToStr(ui->tE_SendData->toPlainText()).toUtf8());
+
+            TempTxNum = my_serial.write(StrToHex(ui->tE_SendData->toPlainText()));
         }
         else
         {
-            TempTxNum = my_serial.write(ui->tE_SendData->toPlainText().toUtf8());
+            //TempTxNum = my_serial.write(ui->tE_SendData->toPlainText().toLocal8Bit);
         }
+
         TempTxNum = TempTxNum + ui->lE_TxNumber->text().toDouble();
         ui->lE_TxNumber->setText(QString::number(TempTxNum));
     }
@@ -129,20 +135,48 @@ void MainWindow::ReadData()
     qint64 TempRxNum = 0;
     QByteArray tempbytearray;
     QString readstr;
+    QString trainInfo;
+    int i;
 
     tempbytearray = my_serial.readAll();
     readstr = QString(tempbytearray);
     TempRxNum = ui->lE_RxNumber->text().toDouble() + tempbytearray.length();
     ui->lE_RxNumber->setText(QString::number(TempRxNum));
 
+    for(auto it = tempbytearray.begin()+2; it<tempbytearray.end()-5;it++)
+            {
+                *it = *it + 0x20;
+                trainInfo.push_back((QString)*it);
+            }
+
     if(rechex_flag)
     {
         /* display the receive data by hex */
-        ui->tE_RecData->insertPlainText(StrToHex(readstr));
+       ui->tE_RecData->insertPlainText(HexToStr(tempbytearray));
+
+       if(tempbytearray[1] == 0x07)
+       {
+           for(i=0; i< ui->tableWidget->rowCount();i++)
+           {
+               if(trainInfo == ui->tableWidget->item(i,0)->text())
+               {
+                   break;
+               }
+           }
+
+           if(i == ui->tableWidget->rowCount())
+           {
+
+               ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+               QTableWidgetItem *item = new QTableWidgetItem(trainInfo);
+               ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, item);
+
+           }
+       }
     }
     else
     {
-        ui->tE_RecData->insertPlainText(readstr);
+       ui->tE_RecData->insertPlainText(trainInfo);
     }
 }
 
@@ -190,7 +224,7 @@ void MainWindow::on_pB_OpenFile_clicked()
     QFile open_file;
     QString filename;
     /* get the filename */
-    filename = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/wangxian", tr("all(*)"));
+    filename = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/Document", tr("all(*)"));
     /* if selectd the file */
     if(false == filename.isEmpty())
     {
@@ -212,7 +246,7 @@ void MainWindow::on_pB_Save_clicked()
     QFile save_file;
     QString filename;
 
-    filename = QFileDialog::getSaveFileName(this, tr("Save File"), "/home/wangxian", tr("all(.)"));
+    filename = QFileDialog::getSaveFileName(this, tr("Save File"), "/home/Document", tr("all(.)"));
     if(false == filename.isEmpty())
     {
         save_file.setFileName(filename);
@@ -243,7 +277,7 @@ void MainWindow::on_checkBox_Send_clicked()
     }
     else
     {
-        ui->tE_SendData->setPlainText(HexToStr(ui->tE_SendData->toPlainText()));
+        ui->tE_SendData->setPlainText(HexToStr(ui->tE_SendData->toPlainText().toLocal8Bit()));
         sendhex_flag = false;
     }
 }
@@ -257,63 +291,57 @@ void MainWindow::on_checkBox_Rec_clicked()
     }
     else
     {
-        ui->tE_RecData->setPlainText(HexToStr(ui->tE_RecData->toPlainText()));
+        ui->tE_RecData->setPlainText(HexToStr(ui->tE_RecData->toPlainText().toLocal8Bit()));
         rechex_flag = false;
     }
 }
 
-void MainWindow::on_pB_About_clicked()
-{
-    helpform.show();
-}
 
-QString MainWindow::StrToHex(QString inputstr)
-{
-    QString result;
-    QByteArray tempbytearray;
-    char tempchar;
-    int i;
 
-    tempbytearray = inputstr.toUtf8().toHex();
-    for(i=0; i<(tempbytearray.count()); i++)
+QByteArray MainWindow::StrToHex(QString inputstr)
+{
+    QByteArray hexData;
+    QString TempData;
+    bool ok;
+
+    for(auto it = inputstr.begin(); it != inputstr.end();it++)
     {
-        if((0 == i%2) && (0 != i))
+        if(*it != ' ')
         {
-            tempchar = ' ';
-            result.append(QString(tempchar));
+            TempData.append(*it++);
+
+            if(*it == ' ')
+            {
+                hexData.append(TempData.toInt(&ok, 16));
+            }
+            else
+            {
+                TempData.append(*it);
+                hexData.append(TempData.toInt(&ok, 16));
+            }
         }
-        tempchar = tempbytearray[i];
-        result.append(tempchar);
+
     }
-    result.append(' ');
-    return result;
+
+    return hexData;
 }
 
-QString MainWindow::HexToStr(QString inputstr)
+
+QString MainWindow::HexToStr(QByteArray receivedata)
 {
-    QString tempstr, result;
-    QByteArray temp_bytearray;
-    char temp_char;
-    int i;
+    QString strData;
 
-    temp_bytearray = inputstr.toLatin1();
-    /* delete the space ascii */
-    for(i=0; i<temp_bytearray.length(); i++)
+    for(auto it = receivedata.begin(); it != receivedata.end();it++)
     {
-        if(temp_bytearray[i] != ' ')
+        if((quint8)*it < 16)
         {
-            temp_char = temp_bytearray[i];
-            tempstr.append(QString(temp_char));
+            strData.append('0');
         }
+        strData.append(QString().number((quint8)*it,16).toUpper());
+        strData.append(' ');
+
     }
-    temp_bytearray.clear();
-    /* hex to byte */
-    for(i=0; i<tempstr.length()/2; i++)
-    {
-        bool ok;
-        temp_bytearray[i] = (uchar)tempstr.mid(i*2, 2).toUInt(&ok,16);
-    }
-    /* QByteArray to QString */
-    result = QString(temp_bytearray);
-    return result;
+
+    return strData;
 }
+

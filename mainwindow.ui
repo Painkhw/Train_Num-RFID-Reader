@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>545</width>
-    <height>395</height>
+    <width>940</width>
+    <height>424</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,8 +116,11 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="currentText">
+     <string>57600</string>
+    </property>
     <property name="currentIndex">
-     <number>9</number>
+     <number>8</number>
     </property>
     <item>
      <property name="text">
@@ -320,7 +323,7 @@
       <x>180</x>
       <y>176</y>
       <width>361</width>
-      <height>160</height>
+      <height>161</height>
      </rect>
     </property>
    </widget>
@@ -390,6 +393,9 @@
     </property>
    </widget>
    <widget class="QCheckBox" name="checkBox_Send">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>265</x>
@@ -400,6 +406,12 @@
     </property>
     <property name="text">
      <string>Hex</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QCheckBox" name="checkBox_Rec">
@@ -422,6 +434,9 @@
     </property>
     <property name="text">
      <string>Hex</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="label_6">
@@ -493,23 +508,6 @@
       <normaloff>../../../../../../usr/share/icons/default.kde4/16x16/actions/edit-delete.png</normaloff>../../../../../../usr/share/icons/default.kde4/16x16/actions/edit-delete.png</iconset>
     </property>
    </widget>
-   <widget class="QPushButton" name="pB_About">
-    <property name="geometry">
-     <rect>
-      <x>520</x>
-      <y>350</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normaloff>../../../../../../usr/share/icons/default.kde4/16x16/actions/help-about.png</normaloff>../../../../../../usr/share/icons/default.kde4/16x16/actions/help-about.png</iconset>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pB_Stop">
     <property name="geometry">
      <rect>
@@ -523,14 +521,35 @@
      <string>Stop</string>
     </property>
    </widget>
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>0</y>
+      <width>381</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>381</width>
+      <height>341</height>
+     </size>
+    </property>
+    <column>
+     <property name="text">
+      <string>铁路车号</string>
+     </property>
+    </column>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>545</width>
-     <height>19</height>
+     <width>940</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
